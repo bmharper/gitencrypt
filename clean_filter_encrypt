@@ -1,0 +1,8 @@
+#!/bin/bash
+
+SRC="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+SALT_FIXED=$(cat $SRC/SALT)      # 24 or less hex characters
+PASS_FIXED=$(cat $SRC/PASSWORD)
+
+openssl enc -base64 -aes-256-ctr -S $SALT_FIXED -k $PASS_FIXED

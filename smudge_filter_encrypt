@@ -1,0 +1,10 @@
+#!/bin/bash
+
+SRC="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+# No salt is needed for decryption.
+PASS_FIXED=$(cat $SRC/PASSWORD)
+
+# If decryption fails, use `cat` instead. 
+# Error messages are redirected to /dev/null.
+openssl enc -d -base64 -aes-256-ctr -k $PASS_FIXED 2> /dev/null || cat

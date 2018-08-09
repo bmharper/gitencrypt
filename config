@@ -1,0 +1,5 @@
+[filter "encrypt"]
+    smudge = GITENCRYPT/smudge_filter_encrypt
+    clean = GITENCRYPT/clean_filter_encrypt
+[diff "encrypt"]
+    textconv = GITENCRYPT/diff_filter_encrypt

@@ -1,0 +1,39 @@
+#!/bin/bash
+#set -e
+
+SRC="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+DST=$1
+SALT=$2
+PASSWORD=$3
+if [ "$DST" == "" ]; then
+	echo "Usage: setup <target git repo> [hex salt] [password]"
+	exit 1
+fi
+if [ "$SALT" == "" ] || [ "$PASSWORD" == "" ]; then
+	if [ ! -f $SRC/SALT ] || [ ! -f $SRC/PASSWORD ]; then
+		echo "Usage: setup <target git repo> <hex salt> <password>"
+		exit 1
+	fi
+else
+	echo $SALT > $SRC/SALT
+	echo $PASSWORD > $SRC/PASSWORD
+fi
+
+cp $SRC/attributes $DST/.git/info/
+
+grep smudge_filter_encrypt $DST/.git/config > /dev/null
+if [ $? -ne 0 ]; then
+	sed 's|GITENCRYPT|'$SRC'|' $SRC/config >> $DST/.git/config
+fi
+
+#rm $DST/.git/index
+#git -C $DST reset --hard
+
+echo ""
+echo "All done! To reset the repo:"
+echo ""
+echo " cd $DST"
+echo " rm .git/index"
+echo " git reset --hard"
+echo ""
