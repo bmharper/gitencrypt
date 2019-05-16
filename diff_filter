@@ -2,7 +2,6 @@
 
 ORIGIN=$(git config --get remote.origin.url | sed -e 's/[^A-Za-z0-9._-]/_/g')
 PASSWORD=$(cat $HOME/.gitencrypt/$ORIGIN)
-SALT=0123456789abcdef
 
 # Error messages are redirected to /dev/null
-openssl enc -d -base64 -aes-256-cbc -S $SALT -k "$PASSWORD" -in "$1" 2> /dev/null || cat "$1"
+openssl enc -d -base64 -aes-256-cbc -k "$PASSWORD" -in "$1" 2> /dev/null || cat "$1"

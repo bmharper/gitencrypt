@@ -2,6 +2,8 @@
 
 ORIGIN=$(git config --get remote.origin.url | sed -e 's/[^A-Za-z0-9._-]/_/g')
 PASSWORD=$(cat $HOME/.gitencrypt/$ORIGIN)
-SALT=0123456789abcdef
 
-openssl enc -base64 -aes-256-cbc -S $SALT -k "$PASSWORD"
+PLAIN=$(mktemp)
+SALT=$(tee $PLAIN | sha256sum | cut -c1-16)
+cat $PLAIN | openssl enc -base64 -aes-256-cbc -S $SALT -k "$PASSWORD"
+rm $PLAIN
