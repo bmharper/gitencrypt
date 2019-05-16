@@ -23,6 +23,7 @@ bash, sed, openssl (ie any *nix system)
 * `git clone https://example.com/example/myrepo`
 * `gitencrypt/setup myrepo <password>`
 * `cd myrepo`
+* `rm .git/index`
 * `git reset --hard`
 * Your files should now be checked out, unencrypted
 
