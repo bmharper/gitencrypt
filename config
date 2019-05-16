@@ -1,5 +1,5 @@
 [filter "encrypt"]
-    smudge = GITENCRYPT/smudge_filter_encrypt
-    clean = GITENCRYPT/clean_filter_encrypt
+    smudge = FILTERS_DIR/smudge_filter
+    clean = FILTERS_DIR/clean_filter
 [diff "encrypt"]
-    textconv = GITENCRYPT/diff_filter_encrypt
+    textconv = FILTERS_DIR/diff_filter

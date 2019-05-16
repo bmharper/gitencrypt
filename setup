@@ -2,29 +2,46 @@
 #set -e
 
 SRC="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+DOT_GITENCRYPT=$HOME/.gitencrypt
 
 DST=$1
-SALT=$2
-PASSWORD=$3
+PASSWORD=$2
 if [ "$DST" == "" ]; then
-	echo "Usage: setup <target git repo> [hex salt] [password]"
+	echo "Usage: setup <target git repo> [password]"
 	exit 1
 fi
-if [ "$SALT" == "" ] || [ "$PASSWORD" == "" ]; then
-	if [ ! -f $SRC/SALT ] || [ ! -f $SRC/PASSWORD ]; then
-		echo "Usage: setup <target git repo> <hex salt> <password>"
+
+if [ ! -d $DOT_GITENCRYPT ]; then
+	mkdir $DOT_GITENCRYPT
+fi
+
+ORIGIN_URL=$(git -C "$DST" config --get remote.origin.url)
+if [ $ORIGIN_URL == "" ]; then
+	echo "Unable to determine remote.origin.url of $DST"
+	exit 1
+fi
+# NOTE: This must be identical to the sed scripts inside clean_filter, diff_filter, and smudge_filter
+PASSWORD_FILE=$DOT_GITENCRYPT/$(echo $ORIGIN_URL | sed -e 's/[^A-Za-z0-9._-]/_/g')
+
+if [ "$PASSWORD" == "" ]; then
+	if [ ! -f $PASSWORD_FILE ]; then
+		echo -e "\033[031mNo password specified\033[0m"
+		echo "Usage: setup <target git repo> <password>"
 		exit 1
 	fi
 else
-	echo $SALT > $SRC/SALT
-	echo $PASSWORD > $SRC/PASSWORD
+	echo $PASSWORD > $PASSWORD_FILE
+	chmod 0600 $PASSWORD_FILE
 fi
 
 cp $SRC/attributes $DST/.git/info/
+cp $SRC/clean_filter $DOT_GITENCRYPT
+cp $SRC/diff_filter $DOT_GITENCRYPT
+cp $SRC/smudge_filter $DOT_GITENCRYPT
 
-grep smudge_filter_encrypt $DST/.git/config > /dev/null
+grep gitencrypt/smudge_filter $DST/.git/config > /dev/null
 if [ $? -ne 0 ]; then
-	sed 's|GITENCRYPT|'$SRC'|' $SRC/config >> $DST/.git/config
+	sed 's|FILTERS_DIR|'$HOME'/.gitencrypt|' $SRC/config >> $DST/.git/config
 fi
 
 #rm $DST/.git/index
@@ -37,3 +54,4 @@ echo " cd $DST"
 echo " rm .git/index"
 echo " git reset --hard"
 echo ""
+echo "Your password is stored in plaintext, in $PASSWORD_FILE"
