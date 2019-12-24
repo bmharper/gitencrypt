@@ -16,7 +16,7 @@ if [ ! -d $DOT_GITENCRYPT ]; then
 fi
 
 ORIGIN_URL=$(git -C "$DST" config --get remote.origin.url)
-if [ $ORIGIN_URL == "" ]; then
+if [ "$ORIGIN_URL" == "" ]; then
 	echo "Unable to determine remote.origin.url of $DST"
 	exit 1
 fi
